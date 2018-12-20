@@ -1,9 +1,11 @@
 # ExpressKey Remote Monitor
 
-This repository houses a Python script that can be run in the background 
-to monitor for ExpressKey Remote (EKR) mode switch events. When a mode 
-switch event occurs, the script will run `xsetwacom` to re-configure the 
-EKR based on the settings stored in the monitor's conf file.
+The ExpressKey Remote Monitor allows Linux users to make use of the 
+"mode toggle button" on their [Wacom ExpressKey Remote](https://101.wacom.com/UserHelp/en/TOC/EKR-100.html) 
+(EKR). It runs in the background, automatically applying a new "xsetwacom"
+configuration whenever the button is pressed. This program is useful for 
+Linux users who don't otherwise have a way to configure the ExpressKey 
+Remote's multiple modes through their preferred control panel.
 
 
 ## Quick Start
@@ -55,6 +57,40 @@ will need to restart the `ekr_monitor.py` script after making any changes.
 The program looks for configuration files at `/etc/ekr_monitor.conf` and 
 `~/.ekr_monitor.conf`. If both files are present their settings will be 
 merged, giving priority to the latter.
+
+The configuration file primarily consists of three sections (one for each 
+of the available modes) with settings for each of the 18 buttons and two 
+Touch Ring directions. It looks like this:
+
+~~~ini
+[mode_0]
+ring_ccw = key CTRL -
+ring_cw = key CTRL SHIFT +
+button_1 = key a
+button_2 = key b
+...
+
+[mode_1]
+...
+
+[mode_2]
+...
+~~~
+
+The settings associated with each value (e.g. `key CTRL -`) are "action 
+mappings" passed to the "xsetwacom" command. See `man xsetwacom(1)` for 
+specific information, but "key", "button", "modetoggle", and "pan" may 
+all be possible allowed actions. Be sure to include the "SHIFT" key in 
+the action mapping if necessary. For example, "+" on most keyboards requires 
+use of the shift key, so `key CTRL +` would not work as expected -- you 
+would need to use `key CTRL SHIFT +` instead.
+
+A "sleep" configuration option under the "general" section is also available.
+This option defines the polling interval (in seconds) that is used when reading 
+the current EKR mode state. A larger value will require fewer resources but 
+will result in a larger delay between switching the mode and the program 
+applying the actions. The default value should not have a noticible impact on 
+performance and have a very minimal delay.
 
 
 ## Todo
